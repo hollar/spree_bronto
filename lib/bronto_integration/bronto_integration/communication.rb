@@ -7,7 +7,7 @@ module BrontoIntegration
       @bronto_client = client || Bronto.new(token)
     end
 
-    def add_to_list(list_name,email)
+    def add_to_list(list_name, email)
       Contact.new(token, bronto_client).find_or_create email
 
       if list_name.is_a? Array
@@ -19,7 +19,7 @@ module BrontoIntegration
       end
     end
 
-    def remove_from_list(list_name,email)
+    def remove_from_list(list_name, email)
       if list_name.is_a? Array
         list_name.each do |list|
           bronto_client.remove_from_list list, email
@@ -35,11 +35,19 @@ module BrontoIntegration
     end
 
     def trigger_delivery(message_name,recipient_email,delivery_type,mail_type,variables_payload, mail_options)
-      bronto_client.add_deliveries(mail_options.merge build(message_name,recipient_email,delivery_type,mail_type,variables_payload))
+      bronto_client.add_deliveries(mail_options.merge build(message_name,
+                                                            recipient_email,
+                                                            delivery_type,
+                                                            mail_type,
+                                                            variables_payload))
     end
 
-    def trigger_delivery_by_id(message_id,recipient_email,delivery_type,mail_type,variables_payload, mail_options)
-      bronto_client.add_deliveries(mail_options.merge build_with_id(message_id,recipient_email,delivery_type,mail_type,variables_payload))
+    def trigger_delivery_by_id(message_name, recipient_email, delivery_type, mail_type, variables_payload, mail_options)
+      bronto_client.add_deliveries(mail_options.merge build_with_id(message_id(message_name),
+                                                                    recipient_email,
+                                                                    delivery_type,
+                                                                    mail_type,
+                                                                    variables_payload))
     end
 
     def message_id(message_name)
