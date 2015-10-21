@@ -5,27 +5,27 @@ module Spree
     accepts_nested_attributes_for :bronto_lists
 
     def send_devise_notification(notification, *args)
-      # @edit_password_reset_url = edit_spree_user_password_url(:reset_password_token => token, :host => current_store.url)
-      # mail to: user.email, from: from_address, subject: Spree::Store.current.name + ' ' + I18n.t(:subject, :scope => [:devise, :mailer, :reset_password_instructions])
       # Bronto sending
       # trigger the email directly here.
-      communication = BrontoIntegration::Communication.new(bronto_token)
-      communication.trigger_delivery_by_id(bronto_message, email,
-                                           'transactional', 'html',
+      bronto_api.trigger_delivery_by_id(bronto_config[notification.to_s],
+                                           email, 'transactional', 'html',
                                            message_attributes, email_options)
     rescue
       # handle the transactional contact in case the
       # message is not approved for transactional.
-      contact = BrontoIntegration::Contact.new(bronto_token)
-      contact.update_status(email, 'active')
-      communication.trigger_delivery_by_id(bronto_message, email,
-                                           'triggered', 'html',
+      find_or_build_contact(email)
+      bronto_api.trigger_delivery_by_id(bronto_config[notification.to_s],
+                                           email, 'triggered', 'html',
                                            attributes, email_options)
     rescue => exception
       raise exception
     end
 
     private
+
+    def bronto_api
+      client ||= BrontoIntegration::Communication.new(bronto_token)
+    end
 
     def current_store
       _current_store ||= Spree::Store.current
@@ -55,15 +55,19 @@ module Spree
       current_store.mail_from_address
     end
 
-    def bronto_attributes
-      attributes = {}
-      attributes = {:First_Name => recent_order.ship_address.firstname} if recent_order
-      attributes = {:First_Name => recent_order.ship_address.lastname} if recent_order
-      attributes[:SENDTIME__CONTENT1] = reset_password_token
+    def find_or_build_contact(email)
+      contact = BrontoIntegration::Contact.new(bronto_token)
+      contact.find_or_create(email)
+      contact.update_status(email, 'active')
     end
 
-    def bronto_message
-      bronto_config['password_reset']
+    def bronto_attributes
+      attributes = {}
+      if recent_order
+        attributes[:First_Name] = recent_order.ship_address.firstname
+        attributes[:Last_Name] = recent_order.ship_address.lastname
+      end
+      attributes[:SENDTIME__CONTENT1] = reset_password_token
     end
 
     def bronto_token
