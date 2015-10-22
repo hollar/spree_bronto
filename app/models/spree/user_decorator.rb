@@ -5,20 +5,13 @@ module Spree
     accepts_nested_attributes_for :bronto_lists
 
     def send_devise_notification(notification, *args)
-      # Bronto sending
-      # trigger the email directly here.
-      bronto_api.trigger_delivery_by_id(bronto_config[notification.to_s],
-                                           email, 'transactional', 'html',
-                                           message_attributes, email_options)
-    rescue
-      # handle the transactional contact in case the
-      # message is not approved for transactional.
       find_or_build_contact(email)
-      bronto_api.trigger_delivery_by_id(bronto_config[notification.to_s],
-                                           email, 'triggered', 'html',
-                                           attributes, email_options)
-    rescue => exception
-      raise exception
+      DelayedSimpleSend.new(current_store.code,
+                            email,
+                            bronto_config[notification.to_s],
+                            bronto_attributes,
+                            'html',
+                            mailer_priority(notification)).perform
     end
 
     private
@@ -68,6 +61,11 @@ module Spree
         attributes[:Last_Name] = recent_order.ship_address.lastname
       end
       attributes[:SENDTIME__CONTENT1] = reset_password_token
+    end
+
+    def mailer_priority(notification)
+      return 20 if notification != :reset_password_instructions
+      10
     end
 
     def bronto_token
