@@ -17,8 +17,6 @@ DelayedSend = Struct.new(:store_code, :email, :message_name, :order_id, :plain_v
                                       'html',
                                       bronto_attributes,
                                       email_options)
-  rescue => exception
-    raise exception
   end
 
   def order
