@@ -1,17 +1,33 @@
-DelayedSimpleSend = Struct.new(:store_code, :email, :message_name, :attributes, :mail_type) do
+DelayedSimpleSend = Struct.new(:store_code, :email, :message_name, :attributes, :mail_type, :priority) do
   def perform
     return if email.blank?
-    begin
-      token= Spree::BrontoConfiguration.account[store_code]['token']
-      from_email= Spree::BrontoConfiguration.account[store_code]['from_address']
-      from_name= Spree::BrontoConfiguration.account[store_code]['from_name']
-      reply_email= Spree::BrontoConfiguration.account[store_code]['from_address']
+    bronto_api.trigger_delivery_by_id(message_name,
+                                      email,
+                                      'triggered',
+                                      mail_type || 'html',
+                                      attributes || {},
+                                      email_options)
+  end
 
-      email_options={:fromEmail =>from_email,:fromName => from_name, :replyEmail => reply_email}
-      communication = BrontoIntegration::Communication.new(token)
-      communication.trigger_delivery_by_id(message_name,email,'triggered',mail_type||'html',attributes||{},email_options)
-    rescue => exception
-      #raise exception   # as now only campaign use this and their templates may not be approved. let it go.
-    end
+  handle_asynchronously :perform, priority: priority || 20
+
+  def config
+    @config ||= Spree::BrontoConfiguration.account[store_code]
+  end
+
+  def bronto_api
+    @bronto_api ||= BrontoIntegration::Communication.new(token['token'])
+  end
+
+  def email_options
+    { fromEmail: from_email, fromName: from_name, replyEmail: from_email }
+  end
+
+  def from_email
+    @from_email ||= config['from_name']
+  end
+
+  def reply_email
+    @reply_email ||= config['from_address']
   end
 end
