@@ -6,47 +6,15 @@ module Spree
     after_commit :create_bronto_contact, on: :create
 
     def send_devise_notification(notification, *args)
-      find_or_build_contact(email)
-      DelayedSimpleSend.new(current_store.code,
-                            email,
-                            bronto_config[notification.to_s],
-                            bronto_attributes,
-                            'html',
-                            mailer_priority(notification)).perform
+      DelayedSimpleSend.perform_later(email,
+                                      bronto_config[notification.to_s],
+                                      bronto_attributes)
     end
 
     private
 
-    def bronto_api
-      client ||= BrontoIntegration::Communication.new(bronto_token)
-    end
-
-    def current_store
-      _current_store ||= Spree::Store.current
-    end
-
-    def store_code
-      current_store.code
-    end
-
-    def email_options
-      { fromEmail: from_email, fromName: from_name, replyEmail: reply_email }
-    end
-
-    def from_email
-      current_store.mail_from_address
-    end
-
     def recent_order
       orders.complete.last
-    end
-
-    def from_name
-      bronto_config['from_name']
-    end
-
-    def reply_email
-      current_store.mail_from_address
     end
 
     def create_bronto_contact
@@ -64,17 +32,20 @@ module Spree
       attributes[:SENDTIME__CONTENT1] = reset_password_token
     end
 
-    def mailer_priority(notification)
-      return 20 if notification != :reset_password_instructions
-      10
-    end
-
     def bronto_token
       bronto_config['token']
     end
 
     def bronto_config
       Spree::BrontoConfiguration.account[store_code]
+    end
+
+    def current_store
+      _current_store ||= Spree::Store.current
+    end
+
+    def store_code
+      current_store.code
     end
   end
 end
