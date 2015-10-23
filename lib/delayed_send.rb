@@ -1,16 +1,7 @@
-DelayedSend = Struct.new(:store_code, :email, :message_name, :order_id, :plain_view, :html_view) do
-  def perform
+class DelayedSend < ActiveJob::Base
+  def perform(email, order_id, message_name)
     return if email.blank?
-    bronto_api.trigger_delivery_by_id(message_name,
-                                      email,
-                                      'transactional',
-                                      'html',
-                                      bronto_attributes,
-                                      email_options)
-  rescue
-    # handle the transactional contact in case the message
-    # is not approved for transactional usage.
-    find_or_build_contact
+    @email, @order_id = email, order_id,
     bronto_api.trigger_delivery_by_id(message_name,
                                       email,
                                       'triggered',
@@ -18,6 +9,10 @@ DelayedSend = Struct.new(:store_code, :email, :message_name, :order_id, :plain_v
                                       bronto_attributes,
                                       email_options)
   end
+
+  private
+
+  attr_reader :email, :order_id
 
   def order
     @order ||= Spree::Order.find(order_id)
@@ -31,12 +26,6 @@ DelayedSend = Struct.new(:store_code, :email, :message_name, :order_id, :plain_v
     @bronto_api ||= BrontoIntegration::Communication.new(config['token'])
   end
 
-  def find_or_build_contact(email)
-    contact = BrontoIntegration::Contact.new(config['token'])
-    contact.find_or_create(email)
-    contact.update_status(email, 'active')
-  end
-
   def bronto_attributes
     attributes[:First_Name] = order.bill_address.firstname
     attributes[:Last_Name] = order.bill_address.lastname
@@ -48,7 +37,7 @@ DelayedSend = Struct.new(:store_code, :email, :message_name, :order_id, :plain_v
                          replyEmail: config['from_address'] }
   end
 
-  if Spree::BrontoConfiguration.account['handle_asynchronously']
-    handle_asynchronously :perform, priority: 20
+  def store_code
+    order.store.code
   end
 end
