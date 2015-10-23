@@ -3,6 +3,7 @@ module Spree
     has_and_belongs_to_many :bronto_lists, class_name: 'Spree::BrontoList',
                                            join_table: :spree_bronto_lists_users
     accepts_nested_attributes_for :bronto_lists
+    after_commit :create_bronto_contact, on: :create
 
     def send_devise_notification(notification, *args)
       find_or_build_contact(email)
@@ -48,7 +49,7 @@ module Spree
       current_store.mail_from_address
     end
 
-    def find_or_build_contact(email)
+    def create_bronto_contact
       contact = BrontoIntegration::Contact.new(bronto_token)
       contact.find_or_create(email)
       contact.update_status(email, 'active')
