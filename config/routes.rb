@@ -10,10 +10,4 @@ Spree::Core::Engine.routes.append do
   resources :orders, :except => [:index, :new, :create, :destroy] do
     patch :subscribe, :on => :member
   end
-
-  post "/newsletter_subscribe", :to => 'newsletter#post', as: :newsletter
-  post "/subscribecampaign", :to => 'home#subscribecampaign'
-  post "/subscribecampaign_with_ops", :to => 'home#subscribecampaign_with_ops'
-
 end
-
