@@ -1,25 +1,13 @@
 Spree::Order.class_eval do
   def deliver_order_confirmation_email
-    if handle_asynchronously?
-      send_email('order_received')
-    else
-      OrderMailer.confirm_email(self).deliver_later
-    end
+    send_email('order_received')
     update_column(:confirmation_delivered, true)
   end
 
   private
 
-  def handle_asynchronously?
-    Spree::BrontoConfiguration['handle_asynchronously']
-  end
-
   def send_cancel_email
-    if handle_asynchronously?
-      send_email('order_canceled')
-    else
-      OrderMailer.cancel_email(self).deliver_later
-    end
+    send_email('order_canceled')
   end
 
   def send_email(key)
