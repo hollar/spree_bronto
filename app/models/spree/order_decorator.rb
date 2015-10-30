@@ -22,6 +22,6 @@ Spree::Order.class_eval do
   end
 
   def store
-    Store.current
+    Spree::Store.current
   end
 end
