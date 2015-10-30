@@ -1,4 +1,6 @@
 class BrontoContactAdd < ActiveJob::Base
+  queue_as :low_priority
+
   def perform(email, store_code)
     return if email.blank?
     @email, @store_code = email, store_code

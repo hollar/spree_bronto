@@ -1,4 +1,6 @@
 class DelayedSimpleSend < ActiveJob::Base
+  queue_as :high_priority
+
   def perform(email, message_name, attributes)
     return if email.blank?
     bronto_api.trigger_delivery_by_id(message_name,

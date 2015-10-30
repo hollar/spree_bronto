@@ -1,4 +1,6 @@
 class DelayedSend < ActiveJob::Base
+  queue_as :medium_priority
+
   def perform(email, order_id, message_name)
     return if email.blank?
     @email, @order_id = email, order_id,
