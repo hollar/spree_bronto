@@ -68,9 +68,7 @@ module BrontoIntegration
           recipients: [
           { id: contact_id(recipient_email), type: 'contact' }
       ],
-          fields: variables_payload.map do |key, value|
-        { name: key.to_s, type: mail_type || 'html', content: value.to_s }
-      end
+          fields: build_message_attributes(variables_payload, mail_type)
       }
     end
 
@@ -82,10 +80,17 @@ module BrontoIntegration
           recipients: [
               { id: contact_id(recipient_email), type: 'contact' }
           ],
-          fields: variables_payload.map do |key, value|
-            { name: key.to_s, type: mail_type || 'html', content: value.to_s }
-          end
+          fields: build_message_attributes(variables_payload, mail_type)
       }
+    end
+
+    def build_message_attributes(variables, mail_type)
+      return [] if variables.empty?
+      attributes = []
+      variables.each do |key, value|
+        attributes << { name: key.to_s, type: mail_type || 'html', content: value.to_s }
+      end
+      attributes
     end
   end
 end
