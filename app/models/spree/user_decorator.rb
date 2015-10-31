@@ -29,7 +29,9 @@ module Spree
         attributes[:First_Name] = recent_order.ship_address.firstname
         attributes[:Last_Name] = recent_order.ship_address.lastname
       end
-      attributes[:SENDTIME__CONTENT1] = reset_password_token
+      attributes[:storeURL] = 'localhost:2388'
+      attributes[:customerLoginURL] = reset_password_token
+      attributes
     end
 
     def bronto_token

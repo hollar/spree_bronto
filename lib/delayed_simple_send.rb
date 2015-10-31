@@ -1,13 +1,13 @@
 class DelayedSimpleSend < ActiveJob::Base
   queue_as :high_priority
 
-  def perform(email, message_name, attributes)
+  def perform(email, message_name, attributes={})
     return if email.blank?
     bronto_api.trigger_delivery_by_id(message_name,
                                       email,
                                       'triggered',
                                       'html',
-                                      attributes || {},
+                                      attributes,
                                       email_options)
   end
 
@@ -20,7 +20,9 @@ class DelayedSimpleSend < ActiveJob::Base
   end
 
   def email_options
-    { fromEmail: from_email, fromName: from_name, replyEmail: from_email }
+    @email_options ||= { fromEmail: from_email,
+                         fromName: from_name,
+                         replyEmail: from_email }
   end
 
   def from_name
