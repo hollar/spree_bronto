@@ -4,13 +4,21 @@ Spree::OrderShipping.class_eval do
     def send_shipment_emails(carton)
       carton.orders.each do |order|
         DelayedSend.perform_later(order.email,
-                                  order.id,
-                                  external_key(order))
+                                  external_key(order),
+                                  mailer_attributes(order))
       end
+    end
+
+    def mailer_attributes(order)
+      Spree::OrderMailerAttributes.new(order).build_attributes
     end
 
     def external_key(order)
       _external_key ||= Spree::BrontoConfiguration.
-                        account[order.store.code]['order_shipped']
+                        account[store.code]['order_shipped']
+    end
+
+    def store
+      Spree::Store.current
     end
 end

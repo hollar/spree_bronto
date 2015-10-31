@@ -1,9 +1,8 @@
 class DelayedSend < ActiveJob::Base
   queue_as :medium_priority
 
-  def perform(email, order_id, message_name)
+  def perform(email, message_name, attributes={})
     return if email.blank?
-    @email, @order_id = email, order_id,
     bronto_api.trigger_delivery_by_id(message_name,
                                       email,
                                       'triggered',
@@ -14,23 +13,12 @@ class DelayedSend < ActiveJob::Base
 
   private
 
-  attr_reader :email, :order_id
-
-  def order
-    @order ||= Spree::Order.find(order_id)
-  end
-
   def config
     @config ||= Spree::BrontoConfiguration.account[store_code]
   end
 
   def bronto_api
     @bronto_api ||= BrontoIntegration::Communication.new(config['token'])
-  end
-
-  def bronto_attributes
-    attributes[:First_Name] = order.bill_address.firstname
-    attributes[:Last_Name] = order.bill_address.lastname
   end
 
   def email_options
@@ -40,6 +28,6 @@ class DelayedSend < ActiveJob::Base
   end
 
   def store_code
-    order.store.code
+    Spree::Store.current.code
   end
 end

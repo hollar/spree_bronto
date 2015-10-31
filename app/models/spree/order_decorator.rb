@@ -12,8 +12,12 @@ Spree::Order.class_eval do
 
   def send_email(key)
     DelayedSend.perform_later(email,
-                              id,
-                              external_key[key])
+                              external_key[key],
+                              mailer_attributes)
+  end
+
+  def mailer_attributes
+    Spree::OrderMailerAttributes.new(self).build_attributes
   end
 
   def external_key
