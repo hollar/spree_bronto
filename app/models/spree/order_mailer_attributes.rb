@@ -39,8 +39,8 @@ module Spree
     end
 
     def build_payment_tags
-      attrs[:paymentType] = order.payments.valid.first.source.cc_type
-      attrs[:paymentNumber] = order.payments.valid.first.source.last_digits
+      attrs[:paymentType] = order.payments.completed.first.source.cc_type
+      attrs[:paymentNumber] = order.payments.completed.first.source.last_digits
     end
 
     def build_address_tags(type)
