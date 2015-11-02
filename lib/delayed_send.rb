@@ -7,7 +7,7 @@ class DelayedSend < ActiveJob::Base
                                       email,
                                       'triggered',
                                       'html',
-                                      bronto_attributes,
+                                      attributes,
                                       email_options)
   end
 
