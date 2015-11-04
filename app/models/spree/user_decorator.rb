@@ -29,13 +29,8 @@ module Spree
         attributes[:First_Name] = recent_order.ship_address.firstname
         attributes[:Last_Name] = recent_order.ship_address.lastname
       end
-      attributes[:resetPasswordUrl] = build_reset_url
+      attributes[:resetToken] = reset_password_token
       attributes
-    end
-
-    def build_reset_url
-      Spree::Core::Engine.routes.url_helpers.edit_user_password_url(self,
-                                                                    reset_password_token: reset_password_token)
     end
 
     def bronto_token
