@@ -8,7 +8,7 @@ module Spree
     def send_devise_notification(notification, *args)
       DelayedSimpleSend.perform_later(email,
                                       bronto_config[notification.to_s],
-                                      bronto_attributes)
+                                      bronto_attributes(args))
     end
 
     private
@@ -23,13 +23,13 @@ module Spree
       contact.update_status(email, 'active')
     end
 
-    def bronto_attributes
+    def bronto_attributes(args)
       attributes = {}
       if recent_order
         attributes[:First_Name] = recent_order.ship_address.firstname
         attributes[:Last_Name] = recent_order.ship_address.lastname
       end
-      attributes[:resetToken] = reset_password_token
+      attributes[:resetToken] = args[0]
       attributes
     end
 
