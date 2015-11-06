@@ -5,12 +5,12 @@ Spree::OrderShipping.class_eval do
       carton.orders.each do |order|
         DelayedSend.perform_later(order.email,
                                   external_key(order),
-                                  mailer_attributes(order))
+                                  mailer_attributes(order, carton))
       end
     end
 
-    def mailer_attributes(order)
-      Spree::OrderMailerAttributes.new(order).build_attributes
+    def mailer_attributes(order, carton)
+      Spree::OrderMailerAttributes.new(order, carton).build_attributes
     end
 
     def external_key(order)
