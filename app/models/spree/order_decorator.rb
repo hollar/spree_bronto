@@ -17,7 +17,7 @@ Spree::Order.class_eval do
   end
 
   def mailer_attributes
-    Spree::OrderMailerAttributes.new(self).build_attributes
+    Spree::OrderMailerAttributes.new(self, {}).build_attributes
   end
 
   def external_key
