@@ -1,7 +1,8 @@
 module Spree
   class OrderMailerAttributes
-    def initialize(order)
+    def initialize(order, carton)
       @order = order
+      @carton = carton
       @attrs = {}
     end
 
@@ -16,12 +17,12 @@ module Spree
 
     private
 
-    attr_reader :order, :attrs
+    attr_reader :order, :attrs, :carton
 
     def build_message_tags
       attrs[:orderIncrementId] = order.number
-      attrs[:orderShippingDescription] = order.shipments.first.shipping_method.name
-      attrs[:shipmentTracking] = order.shipments.first.tracking
+      attrs[:orderShippingDescription] = carton.shipping_method.name
+      attrs[:shipmentTracking] = carton.tracking
       attrs[:orderTotals] = order.total.to_i
       attrs[:orderSubTotals] = order.item_total.to_i
       attrs[:orderTaxTotals] = order.tax_total.to_i
