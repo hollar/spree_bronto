@@ -24,8 +24,4 @@ Spree::Order.class_eval do
     _external_key ||= Spree::BrontoConfiguration
                       .account[store.code]
   end
-
-  def store
-    Spree::Store.current
-  end
 end
