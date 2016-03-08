@@ -25,7 +25,7 @@ class BrontoContactAdd < ActiveJob::Base
   end
 
   def create_new_contact
-    contact.setup(email, fields)
+    contact.set_up(email, fields)
   end
 
   def assign_newsletter_status
