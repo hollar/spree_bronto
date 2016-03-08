@@ -1,11 +1,11 @@
 class BrontoContactAdd < ActiveJob::Base
   queue_as :low_priority
 
-  def perform(email, store_code, fields)
+  def perform(email, store_code, fields = {})
     return if email.blank?
     @email = email
     @store_code = store_code
-    @fields = fields || {}
+    @fields = fields
     @contact = BrontoIntegration::Contact.new(bronto_token)
 
     create_new_contact
