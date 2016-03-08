@@ -1,6 +1,8 @@
 SpreeBronto
 ===========
 
+[![Solidus Ready](https://img.shields.io/badge/solidus-ready-ef8e1f.svg)](https://github.com/DynamoMTL/spree_bronto/tree/solidus)
+
 Spree_bronto is one extension for spree to use Bronto mailing services and cart recovery tagging. Bronto API call code is basically one copy
 from Wombat Bronto End_point.
 
