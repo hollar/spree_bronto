@@ -1,7 +1,8 @@
 module Spree
-  class OrderMailerAttributes
-    def initialize(order, carton)
-      @order = order
+  class ShipmentMailerAttributes
+    def initialize(shipment, carton)
+      @shipment = shipment
+      @order = shipment.order
       @carton = carton
       @attrs = {}
     end
@@ -17,7 +18,7 @@ module Spree
 
     private
 
-    attr_reader :order, :attrs, :carton
+    attr_reader :shipment, :order, :attrs, :carton
 
     def build_message_tags
       attrs[:orderIncrementId] = order.number
@@ -30,12 +31,12 @@ module Spree
     end
 
     def build_line_item_tags
-      order.line_items.each_with_index do |item, idx|
-        attrs[:"productImgUrl_#{idx}"] = item.variant.images.first.attachment.url(:small)
-        attrs[:"productName_#{idx}"] = item.variant.name
-        attrs[:"productSku_#{idx}"] = item.variant.sku
-        attrs[:"productQty_#{idx}"] = item.quantity
-        attrs[:"productPriceExclTax_#{idx}"] = item.price.to_i
+      shipment.inventory_units.each_with_index do |unit, idx|
+        attrs[:"productImgUrl_#{idx}"] = unit.variant.images.first.attachment.url(:small)
+        attrs[:"productName_#{idx}"] = unit.variant.name
+        attrs[:"productSku_#{idx}"] = unit.variant.sku
+        attrs[:"productQty_#{idx}"] = unit.line_item.quantity
+        attrs[:"productPriceExclTax_#{idx}"] = unit.line_item.price.to_i
       end
     end
 
