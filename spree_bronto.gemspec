@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   version = '~> 3-0-stable'
 
-  s.add_runtime_dependency 'solidus_core', [">= 1.1.0.pre", "< 1.2.0"]
+  s.add_runtime_dependency 'solidus_core', [">= 1.1.0.pre", "< 1.2.2"]
 
   s.add_development_dependency 'capybara', '~> 2.4'
   s.add_development_dependency 'coffee-rails'
