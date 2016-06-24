@@ -18,9 +18,13 @@ module Spree
     end
 
     def create_bronto_contact
-      contact = BrontoIntegration::Contact.new(bronto_token)
-      contact.find_or_create(email)
-      contact.update_status(email, 'active')
+      begin
+        contact = BrontoIntegration::Contact.new(bronto_token)
+        contact.find_or_create(email)
+        contact.update_status(email, 'active')
+      rescue Bronto::ValidationError
+        # noop
+      end
     end
 
     def bronto_attributes(args)

@@ -1,9 +1,11 @@
 class BrontoContactAdd < ActiveJob::Base
-  queue_as :low_priority
+  queue_as :high_priority
 
-  def perform(email, store_code)
+  def perform(email, store_code, fields = {})
     return if email.blank?
-    @email, @store_code = email, store_code
+    @email = email
+    @store_code = store_code
+    @fields = fields
     @contact = BrontoIntegration::Contact.new(bronto_token)
 
     create_new_contact
@@ -12,7 +14,7 @@ class BrontoContactAdd < ActiveJob::Base
 
   private
 
-  attr_reader :contact, :email, :store_code
+  attr_reader :contact, :email, :store_code, :fields
 
   def bronto_token
     bronto_config['token']
@@ -23,7 +25,7 @@ class BrontoContactAdd < ActiveJob::Base
   end
 
   def create_new_contact
-    contact.find_or_create(email)
+    contact.set_up(email, fields)
   end
 
   def assign_newsletter_status
