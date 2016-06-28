@@ -1,14 +1,27 @@
 class DelayedSend < ActiveJob::Base
   queue_as :medium_priority
 
-  def perform(email, message_name, attributes={})
+  def perform(email, message_name, attributes = {})
     return if email.blank?
-    bronto_api.trigger_delivery_by_id(message_name,
-                                      email,
-                                      'triggered',
-                                      'html',
-                                      attributes,
-                                      email_options)
+    begin
+      bronto_api.trigger_delivery_by_id(message_name,
+                                        email,
+                                        'transactional',
+                                        'html',
+                                        attributes,
+                                        email_options)
+    rescue
+      begin
+        bronto_api.trigger_delivery_by_id(message_name,
+                                          email,
+                                          'triggered',
+                                          'html',
+                                          attributes,
+                                          email_options)
+      rescue => e
+        raise e
+      end
+    end
   end
 
   private
