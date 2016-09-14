@@ -22,7 +22,7 @@ module Spree
         contact = BrontoIntegration::Contact.new(bronto_token)
         contact.find_or_create(email)
         contact.update_status(email, 'active')
-      rescue Bronto::ValidationError
+      rescue
         # noop
       end
     end
