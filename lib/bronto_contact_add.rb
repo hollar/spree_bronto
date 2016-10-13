@@ -10,6 +10,9 @@ class BrontoContactAdd < ActiveJob::Base
 
     create_new_contact
     assign_newsletter_status
+  rescue Bronto::ValidationError => e
+    # ValidationError exceptions are better logged than reported
+    Rails.logger.error("Bronto::ValidationError: #{e.message} [spree_bronto]")
   end
 
   private
